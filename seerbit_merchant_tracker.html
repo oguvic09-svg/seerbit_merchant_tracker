@@ -1,0 +1,476 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+input,select,textarea{font-family:var(--font-sans);}
+.page{display:none;padding:1rem 0;}
+.page.active{display:block;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.btn{font-size:13px;padding:7px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans);}
+.btn:hover{background:var(--color-background-secondary);}
+.btn-primary{background:#1D9E75;border-color:#1D9E75;color:#fff;}
+.btn-primary:hover{background:#0F6E56;border-color:#0F6E56;}
+.btn-danger{color:#A32D2D;border-color:#F09595;}
+.btn-danger:hover{background:#FCEBEB;}
+.btn-sm{font-size:12px;padding:5px 10px;}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.5rem;}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;text-align:center;}
+.metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary);}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:10px;}
+.merchant-row{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.merchant-row:hover .merchant-name{color:#1D9E75;}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;}
+.merchant-info{flex:1;min-width:0;}
+.merchant-name{font-size:14px;font-weight:500;color:var(--color-text-primary);}
+.merchant-meta{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.pbar-wrap{width:120px;flex-shrink:0;}
+.pbar-bg{height:4px;background:var(--color-border-tertiary);border-radius:99px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:99px;background:#1D9E75;}
+.pbar-label{font-size:11px;color:var(--color-text-secondary);text-align:right;margin-top:3px;}
+.status-pill{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;flex-shrink:0;}
+.pill-new{background:#E6F1FB;color:#0C447C;}
+.pill-progress{background:#FAEEDA;color:#633806;}
+.pill-done{background:#E1F5EE;color:#085041;}
+.section-hdr{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:6px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);}
+.section-hdr:hover{background:var(--color-background-tertiary);}
+.sec-title{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1;}
+.sec-badge{font-size:11px;padding:2px 7px;border-radius:99px;font-weight:500;}
+.chev{font-size:10px;color:var(--color-text-tertiary);transition:transform .2s;}
+.chev.open{transform:rotate(90deg);}
+.items-list{display:none;}
+.items-list.open{display:block;}
+.item-row{display:flex;align-items:flex-start;gap:10px;padding:7px 12px;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid transparent;margin-bottom:2px;}
+.item-row:hover{background:var(--color-background-secondary);border-color:var(--color-border-tertiary);}
+.item-row.done{opacity:.5;}
+.cbox{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;}
+.item-row.done .cbox{background:#1D9E75;border-color:#1D9E75;}
+.ck{display:none;}
+.item-row.done .ck{display:block;}
+.item-txt{font-size:13px;color:var(--color-text-primary);line-height:1.5;}
+.item-note{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.item-row.done .item-txt{text-decoration:line-through;color:var(--color-text-secondary);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-text-secondary);cursor:pointer;margin-bottom:1rem;background:none;border:none;font-family:var(--font-sans);padding:0;}
+.back-btn:hover{color:var(--color-text-primary);}
+.detail-header{display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;}
+.detail-meta{font-size:12px;color:var(--color-text-secondary);margin-top:3px;}
+.overall-bar{height:6px;background:var(--color-border-tertiary);border-radius:99px;overflow:hidden;margin:8px 0 4px;}
+.overall-fill{height:100%;background:#1D9E75;border-radius:99px;}
+.empty-state{text-align:center;padding:3rem 1rem;}
+.empty-title{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem;}
+.modal-bg{display:none;background:rgba(0,0,0,0.35);border-radius:var(--border-radius-lg);padding:2rem;align-items:center;justify-content:center;min-height:260px;margin-bottom:1rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;width:100%;max-width:400px;}
+.modal-title{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;}
+.field input,.field select{width:100%;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;}
+.notes-area{width:100%;min-height:60px;font-size:13px;font-family:var(--font-sans);padding:8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);resize:vertical;}
+.search-row{display:flex;gap:8px;margin-bottom:1rem;}
+.search-row input{flex:1;}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.tag{font-size:11px;padding:4px 10px;border-radius:99px;border:0.5px solid var(--color-border-secondary);cursor:pointer;color:var(--color-text-secondary);background:transparent;}
+.tag.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info);}
+.loading{font-size:13px;color:var(--color-text-secondary);text-align:center;padding:2rem;}
+</style>
+
+<h2 class="sr-only">Seerbit merchant integration tracker — manage and track onboarding progress for multiple merchants</h2>
+
+<div id="pg-list" class="page active">
+  <div class="topbar">
+    <div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);">Merchant integrations</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px)">Seerbit technical onboarding</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAdd()">+ Add merchant</button>
+  </div>
+  <div class="metrics" id="metrics"></div>
+  <div class="search-row">
+    <input type="text" placeholder="Search merchants..." id="search" oninput="renderList()">
+  </div>
+  <div class="tag-row">
+    <span class="tag active" data-filter="all" onclick="setFilter('all')">All</span>
+    <span class="tag" data-filter="new" onclick="setFilter('new')">Not started</span>
+    <span class="tag" data-filter="progress" onclick="setFilter('progress')">In progress</span>
+    <span class="tag" data-filter="done" onclick="setFilter('done')">Complete</span>
+  </div>
+  <div id="merchant-list"></div>
+</div>
+
+<div id="pg-detail" class="page">
+  <button class="back-btn" onclick="showList()">&#8592; All merchants</button>
+  <div class="detail-header">
+    <div class="avatar" id="d-avatar" style="width:44px;height:44px;font-size:15px;"></div>
+    <div style="flex:1;">
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);" id="d-name"></div>
+      <div class="detail-meta" id="d-meta"></div>
+      <div class="overall-bar"><div class="overall-fill" id="d-bar"></div></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);" id="d-pct"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="openEdit()">Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteMerchant()">Delete</button>
+    </div>
+  </div>
+  <div style="margin-bottom:1rem;">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;">Notes</div>
+    <textarea class="notes-area" id="d-notes" placeholder="Add integration notes..." oninput="saveNotes()"></textarea>
+  </div>
+  <div id="checklist-detail"></div>
+</div>
+
+<div id="modal-add" class="modal-bg">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add merchant</div>
+    <div class="field"><label>Merchant name</label><input type="text" id="m-name" placeholder="e.g. Novacare Ltd"></div>
+    <div class="field"><label>Contact email</label><input type="text" id="m-email" placeholder="dev@merchant.com"></div>
+    <div class="field"><label>Integration type</label>
+      <select id="m-type">
+        <option>Checkout (card + transfer)</option>
+        <option>Virtual account only</option>
+        <option>Split settlement</option>
+        <option>Full integration</option>
+        <option>API only</option>
+      </select>
+    </div>
+    <div class="field"><label>Priority</label>
+      <select id="m-priority">
+        <option>Normal</option>
+        <option>High</option>
+        <option>Urgent</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveMerchant()">Add merchant</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECTIONS = [
+  {id:"account",title:"Account & credentials",color:"#EEEDFE",tc:"#3C3489",items:[
+    {t:"Merchant account created on Seerbit dashboard",n:"sandbox.seerbit.com or business.seerbit.com"},
+    {t:"Public key and secret key retrieved",n:"SBPUBK_... and SBSECK_..."},
+    {t:"Webhook secret key noted for signature validation"},
+    {t:"Business details and KYC documents submitted"},
+    {t:"Bank account linked for settlements"},
+    {t:"Sub-accounts created if using split payments",n:"Platform-XXXXX codes"}
+  ]},
+  {id:"env",title:"Environment configuration",color:"#E6F1FB",tc:"#0C447C",items:[
+    {t:"Sandbox tested end-to-end before going live"},
+    {t:"Public key swapped to live key in production"},
+    {t:"Base URL set correctly",n:"https://seerbitapi.com/api/v2 (live)"},
+    {t:"API keys stored securely — not hardcoded"},
+    {t:"TLS/HTTPS enforced on webhook endpoints"}
+  ]},
+  {id:"checkout",title:"Checkout integration",color:"#E1F5EE",tc:"#085041",items:[
+    {t:"Checkout SDK or API integrated",n:"Standard, inline or popup mode"},
+    {t:"Payment reference unique per transaction"},
+    {t:"Amount, currency (NGN) and country (NG) passed correctly"},
+    {t:"Customer email and full name in payload"},
+    {t:"Callback URL set and reachable"},
+    {t:"Payment channels configured",n:"Card, transfer, USSD"},
+    {t:"amountControl set correctly",n:"FIXEDAMOUNT or DYNAMICAMOUNT"}
+  ]},
+  {id:"transfer",title:"Virtual account / transfer",color:"#FAEEDA",tc:"#633806",items:[
+    {t:"Virtual account creation flow tested",n:"UBA_VA or other processor"},
+    {t:"Retry reference handling implemented",n:"System appends alt ref on retry"},
+    {t:"Pending status handled — not marked failed immediately"},
+    {t:"Bank webhook notification endpoint implemented"},
+    {t:"Duplicate transfer detection implemented"},
+    {t:"Response code S20 handled correctly",n:"Account opened successfully"}
+  ]},
+  {id:"webhook",title:"Webhook handling",color:"#FAECE7",tc:"#712B13",items:[
+    {t:"Webhook URL registered in Seerbit dashboard"},
+    {t:"HMAC signature validation implemented"},
+    {t:"HTTP 200 returned immediately — async processing"},
+    {t:"Idempotency check — same event processed once"},
+    {t:"eventType TRANSACTION handled",n:"Check payload.status for SUCCESSFUL/FAILED"},
+    {t:"Webhook retry handled gracefully"},
+    {t:"Alert set up for failed webhook deliveries"}
+  ]},
+  {id:"split",title:"Split settlement",color:"#EAF3DE",tc:"#27500A",items:[
+    {t:"Split type defined — FLAT or PERCENTAGE"},
+    {t:"Sub-account codes confirmed and active"},
+    {t:"Split items array built correctly in payload"},
+    {t:"transactionFee ownership set",n:"PARENT_ACCOUNT or sub-account"},
+    {t:"Duplicate split save prevented on retries"},
+    {t:"Settlement cycle confirmed with Seerbit team",n:"T+1 or T+2"}
+  ]},
+  {id:"errors",title:"Error handling & monitoring",color:"#E6F1FB",tc:"#0C447C",items:[
+    {t:"Response code S12 handled — do not block retry"},
+    {t:"Response code 00 triggers fulfilment"},
+    {t:"Token not found error monitored"},
+    {t:"New Relic alerts set up for ERROR level logs"},
+    {t:"High response time alerts configured",n:"Alert if duration.ms > 10000"},
+    {t:"Fallback/retry logic tested for timeouts"}
+  ]},
+  {id:"golive",title:"Go-live readiness",color:"#EEEDFE",tc:"#3C3489",items:[
+    {t:"End-to-end tested in live mode with real payment"},
+    {t:"Receipt emails confirmed — merchant and customer"},
+    {t:"Seerbit support contact noted for escalations"},
+    {t:"Dashboard access confirmed for reconciliation"},
+    {t:"Refund/reversal flow tested and documented"},
+    {t:"Integration sign-off from Seerbit technical team"}
+  ]}
+];
+
+const TOTAL = SECTIONS.reduce((a,s)=>a+s.items.length,0);
+let merchants = [];
+let currentId = null;
+let filterVal = 'all';
+let editingId = null;
+const COLORS = ['#EEEDFE','#E6F1FB','#E1F5EE','#FAEEDA','#FAECE7','#EAF3DE','#FBEAF0','#FCEBEB'];
+const TCOLORS = ['#3C3489','#0C447C','#085041','#633806','#712B13','#27500A','#72243E','#791F1F'];
+
+async function load(){
+  try{
+    const r = await window.storage.get('sb_merchants');
+    if(r) merchants = JSON.parse(r.value);
+  } catch(e){ merchants=[]; }
+  renderAll();
+}
+
+async function save(){
+  try{ await window.storage.set('sb_merchants', JSON.stringify(merchants)); } catch(e){}
+}
+
+function getProgress(m){
+  const checks = m.checks || {};
+  const done = Object.values(checks).filter(Boolean).length;
+  return {done, total:TOTAL, pct: TOTAL ? Math.round(done/TOTAL*100) : 0};
+}
+
+function getStatus(m){
+  const {done,pct} = getProgress(m);
+  if(done===0) return 'new';
+  if(pct===100) return 'done';
+  return 'progress';
+}
+
+function initials(name){
+  return name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+}
+
+function avatarColors(name){
+  const i = name.charCodeAt(0)%COLORS.length;
+  return {bg:COLORS[i],tc:TCOLORS[i]};
+}
+
+function setFilter(v){
+  filterVal=v;
+  document.querySelectorAll('.tag').forEach(t=>{
+    t.classList.toggle('active', t.dataset.filter===v);
+  });
+  renderList();
+}
+
+function renderAll(){ renderMetrics(); renderList(); }
+
+function renderMetrics(){
+  const total = merchants.length;
+  const done = merchants.filter(m=>getStatus(m)==='done').length;
+  const inprog = merchants.filter(m=>getStatus(m)==='progress').length;
+  const avg = total ? Math.round(merchants.reduce((a,m)=>a+getProgress(m).pct,0)/total) : 0;
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="metric-val">${total}</div><div class="metric-label">Total</div></div>
+    <div class="metric"><div class="metric-val">${inprog}</div><div class="metric-label">In progress</div></div>
+    <div class="metric"><div class="metric-val">${done}</div><div class="metric-label">Complete</div></div>
+    <div class="metric"><div class="metric-val">${avg}%</div><div class="metric-label">Avg progress</div></div>
+  `;
+}
+
+function renderList(){
+  const q = (document.getElementById('search').value||'').toLowerCase();
+  let list = merchants.filter(m=>{
+    const matchQ = !q || m.name.toLowerCase().includes(q) || (m.email||'').toLowerCase().includes(q);
+    const s = getStatus(m);
+    const matchF = filterVal==='all' || filterVal===s;
+    return matchQ && matchF;
+  });
+  const el = document.getElementById('merchant-list');
+  if(merchants.length===0){
+    el.innerHTML = `<div class="empty-state"><div class="empty-title">No merchants yet</div><div class="empty-sub">Add your first merchant to start tracking their integration.</div><button class="btn btn-primary" onclick="openAdd()">+ Add merchant</button></div>`;
+    return;
+  }
+  if(list.length===0){
+    el.innerHTML = `<div class="empty-state"><div class="empty-title">No results</div><div class="empty-sub">Try a different search or filter.</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(m=>{
+    const {done,pct} = getProgress(m);
+    const s = getStatus(m);
+    const ac = avatarColors(m.name);
+    const pill = s==='done'?'pill-done':s==='progress'?'pill-progress':'pill-new';
+    const pillTxt = s==='done'?'Complete':s==='progress'?'In progress':'Not started';
+    const added = m.added ? new Date(m.added).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return `<div class="card" onclick="openDetail('${m.id}')">
+      <div class="merchant-row">
+        <div class="avatar" style="background:${ac.bg};color:${ac.tc};">${initials(m.name)}</div>
+        <div class="merchant-info">
+          <div class="merchant-name">${m.name}</div>
+          <div class="merchant-meta">${m.type||''}${m.email?' · '+m.email:''}${added?' · Added '+added:''}</div>
+        </div>
+        <div class="pbar-wrap">
+          <div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%"></div></div>
+          <div class="pbar-label">${done}/${TOTAL}</div>
+        </div>
+        <span class="status-pill ${pill}">${pillTxt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openDetail(id){
+  currentId = id;
+  const m = merchants.find(x=>x.id===id);
+  if(!m) return;
+  const ac = avatarColors(m.name);
+  document.getElementById('d-avatar').style.background = ac.bg;
+  document.getElementById('d-avatar').style.color = ac.tc;
+  document.getElementById('d-avatar').textContent = initials(m.name);
+  document.getElementById('d-name').textContent = m.name;
+  document.getElementById('d-meta').textContent = [m.type, m.email, m.priority!=='Normal'?m.priority+' priority':''].filter(Boolean).join(' · ');
+  document.getElementById('d-notes').value = m.notes||'';
+  renderDetail();
+  document.getElementById('pg-list').classList.remove('active');
+  document.getElementById('pg-detail').classList.add('active');
+}
+
+function renderDetail(){
+  const m = merchants.find(x=>x.id===currentId);
+  if(!m) return;
+  const {done,pct} = getProgress(m);
+  document.getElementById('d-bar').style.width = pct+'%';
+  document.getElementById('d-pct').textContent = done+' of '+TOTAL+' items complete ('+pct+'%)';
+  const checks = m.checks||{};
+  document.getElementById('checklist-detail').innerHTML = SECTIONS.map(s=>{
+    const sdone = s.items.filter((_,i)=>checks[s.id+'_'+i]).length;
+    const isOpen = s._open!==false;
+    return `<div style="margin-bottom:10px;">
+      <div class="section-hdr" onclick="toggleSec('${s.id}')">
+        <span class="chev ${isOpen?'open':''}" id="chev-${s.id}">&#9654;</span>
+        <span class="sec-title">${s.title}</span>
+        <span class="sec-badge" style="background:${s.color};color:${s.tc};">${sdone}/${s.items.length}</span>
+      </div>
+      <div class="items-list ${isOpen?'open':''}" id="sec-${s.id}">
+        ${s.items.map((item,i)=>{
+          const key=s.id+'_'+i;
+          const checked=!!checks[key];
+          return `<div class="item-row ${checked?'done':''}" onclick="toggleItem('${s.id}',${i})">
+            <div class="cbox"><svg class="ck" width="8" height="6" viewBox="0 0 8 6"><path d="M1 3l2 2 4-4" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="item-txt">${item.t}</div>${item.n?`<div class="item-note">${item.n}</div>`:''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSec(id){
+  const s = SECTIONS.find(x=>x.id===id);
+  s._open = s._open===false?true:false;
+  renderDetail();
+}
+
+function toggleItem(sid,idx){
+  const m = merchants.find(x=>x.id===currentId);
+  if(!m) return;
+  if(!m.checks) m.checks={};
+  const key=sid+'_'+idx;
+  m.checks[key]=!m.checks[key];
+  save();
+  renderDetail();
+  renderMetrics();
+}
+
+function saveNotes(){
+  const m = merchants.find(x=>x.id===currentId);
+  if(!m) return;
+  m.notes = document.getElementById('d-notes').value;
+  save();
+}
+
+function showList(){
+  document.getElementById('pg-detail').classList.remove('active');
+  document.getElementById('pg-list').classList.add('active');
+  renderAll();
+}
+
+function openAdd(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Add merchant';
+  document.getElementById('modal-save-btn').textContent='Add merchant';
+  document.getElementById('m-name').value='';
+  document.getElementById('m-email').value='';
+  document.getElementById('m-type').value='Checkout (card + transfer)';
+  document.getElementById('m-priority').value='Normal';
+  document.getElementById('modal-add').classList.add('open');
+}
+
+function openEdit(){
+  const m = merchants.find(x=>x.id===currentId);
+  if(!m) return;
+  editingId=currentId;
+  document.getElementById('modal-title').textContent='Edit merchant';
+  document.getElementById('modal-save-btn').textContent='Save changes';
+  document.getElementById('m-name').value=m.name||'';
+  document.getElementById('m-email').value=m.email||'';
+  document.getElementById('m-type').value=m.type||'Checkout (card + transfer)';
+  document.getElementById('m-priority').value=m.priority||'Normal';
+  document.getElementById('modal-add').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal-add').classList.remove('open');
+  editingId=null;
+}
+
+function saveMerchant(){
+  const name = document.getElementById('m-name').value.trim();
+  if(!name) return;
+  if(editingId){
+    const m = merchants.find(x=>x.id===editingId);
+    if(m){
+      m.name=name;
+      m.email=document.getElementById('m-email').value.trim();
+      m.type=document.getElementById('m-type').value;
+      m.priority=document.getElementById('m-priority').value;
+    }
+    closeModal();
+    if(currentId===editingId) openDetail(editingId);
+  } else {
+    const m = {
+      id: 'M'+Date.now(),
+      name,
+      email: document.getElementById('m-email').value.trim(),
+      type: document.getElementById('m-type').value,
+      priority: document.getElementById('m-priority').value,
+      added: new Date().toISOString(),
+      checks:{},
+      notes:''
+    };
+    merchants.push(m);
+    closeModal();
+  }
+  save();
+  renderAll();
+}
+
+function deleteMerchant(){
+  if(!currentId) return;
+  const m = merchants.find(x=>x.id===currentId);
+  if(!m) return;
+  if(!confirm('Delete '+m.name+'? This cannot be undone.')) return;
+  merchants = merchants.filter(x=>x.id!==currentId);
+  save();
+  showList();
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+SECTIONS.forEach(s=>s._open=true);
+load();
+</script>
